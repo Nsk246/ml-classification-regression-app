@@ -104,12 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const results = await session.run(feeds);
         
-        // --- *** THIS IS THE FIX *** ---
-        // PyTorch models use 'prediction'
-        // skl2onnx/XGBoost models can use 'variable' or 'output_label'
+        // --- *** THIS IS THE DEBUG STEP *** ---
+        // 1. Log the entire 'results' object to the console
+        console.log("Regression results object:", results); 
+        
+        // 2. We'll find the real name from the log. For now, we try to find it.
         const predictionData = results.prediction || results.output_label || results.variable;
+
+        // 3. This line will error, but the log above will tell us the fix.
+        // If the app doesn't crash, it means one of the names worked.
         const prediction = predictionData.data[0]; 
-        // --- *** END OF FIX *** ---
+        // --- *** END OF DEBUG STEP *** ---
         
         const formattedPrice = (prediction * 100000).toLocaleString('en-US', {
             style: 'currency',
@@ -140,9 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const results = await session.run(feeds);
         
-        // --- THIS IS THE FIX for XGBOOST CLASSIFICATION ---
-        // PyTorch models output 'logits'
-        // XGBoost Classification outputs 'output_label' (the prediction) and 'output_probability' (the probabilities)
         let logits;
         if (results.logits) {
             logits = results.logits.data; // Get logits from PyTorch models
@@ -150,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reconstruct logits from XGBoost probabilities
             const prob_class_0 = results.output_probability.data[0];
             const prob_class_1 = results.output_probability.data[1];
-            logits = [Math.log(prob_class_0 + 1e-9), Math.log(prob_class_1 + 1e-9)]; // Added 1e-9 to prevent log(0)
+            logits = [Math.log(prob_class_0 + 1e-9), Math.log(prob_class_1 + 1e-9)]; 
         }
         
         const probabilities = softmax(logits);
@@ -178,14 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const output = new Float32Array(28); 
         let outputIndex = 0;
 
-        // 1. Process 5 Numeric Features
         for (let i = 0; i < CLASSIFICATION_NUMERIC_FEATURES.length; i++) {
             const id = CLASSIFICATION_NUMERIC_FEATURES[i];
             const val = parseFloat(document.getElementById(id).value);
             output[outputIndex++] = (val - CLASSIFICATION_MEANS[i]) / CLASSIFICATION_STDS[i];
         }
         
-        // 2. Process 8 Categorical Features (One-Hot Encoding)
         for (const [id, categories] of Object.entries(CLASSIFICATION_CATEGORICAL_INFO)) {
             const selectedValue = parseFloat(document.getElementById(id).value);
             for (const category of categories) {
@@ -204,11 +204,28 @@ document.addEventListener('DOMContentLoaded', () => {
      * Computes the softmax function on an array of numbers (logits).
      */
     function softmax(arr) {
-        // Add a check for non-finite numbers which can come from log(0)
         const safeArr = arr.map(x => (isFinite(x) ? x : -Infinity));
         const maxLogit = Math.max(...safeArr);
-        const exps = safeArr.map(x => Math.exp(x - maxLogit)); // Subtract max for numerical stability
+        const exps = safeArr.map(x => Math.exp(x - maxLogit)); 
         const sum = exps.reduce((a, b) => a + b, 0);
         return exps.map(e => (e / sum));
     }
 });
+```
+
+---
+
+### **Step 2: Find the Output Name**
+
+1.  **Upload** this new `app.js` file to your GitHub repo.
+2.  Wait 1-2 minutes for the site to update.
+3.  **Hard-refresh** your live website (Cmd+Shift+R or Ctrl+Shift+R).
+4.  Open the **Developer Console** (F12).
+5.  Select the **`Model 4: XGBoost`** model in the regression form.
+6.  Fill in the 8 input fields and click **"Predict Price"**.
+7.  The app will still error, but in the console, you will see a new line that starts with `Regression results object:`.
+8.  It will look something like this:
+    ```
+    Regression results object: {
+        some_other_name: Tensor { ... } 
+    }
