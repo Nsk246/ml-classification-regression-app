@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Model Deployment (Nandhu S Kumar)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+</head>
+<body>
+
+    <div class="background-gradient"></div>
+    <header>
+        <h1>PyTorch & XGBoost Model Deployment (ONNX)</h1>
+        <p>Comparing 14 different models for regression & classification.</p>
+    </header>
+
+    <main>
+        <section id="regression">
+            <h2>Regression: California Housing Prices</h2>
+            <p>Enter 8 features to predict the median house value. Inputs are constrained to realistic values.</p>
+            
+            <form id="regression-form">
+                <div class="form-group">
+                    <label for="regression-model">Select Model:</label>
+                    <select id="regression-model">
+                        <optgroup label="In-class model architectures">
+                            <option value="regression_dl_net_reg.onnx" selected>DL_Net (R2: 0.709)</option>
+                            <option value="regression_linearplusnonlinear_net.onnx">Linear+NonLinear (R2: 0.622)</option>
+                            <option value="regression_linregnet.onnx">LinRegNet (R2: 0.575)</option>
+                            <option value="regression_mlp_net_reg.onnx">MLP_Net (R2: 0.298) [WARNING: Low R2]</option>
+                        </optgroup>
+                        <optgroup label="My own model architectures">
+                            <option value="regression_xgboost.onnx">XGBoost (R2: 0.827)</option>
+                            <option value="regression_optimized.onnx">Optimized NN (R2: 0.762)</option>
+                            <option value="regression_deep.onnx">Deep NN (R2: 0.755)</option>
+                            <option value="regression_simple.onnx">Simple NN (R2: 0.574)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="medinc">Median Income (in $10k)</label>
+                        <input type="number" id="medinc" placeholder="Range: 0.5 to 15" min="0.5" max="15" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="houseage">House Age (Years)</label>
+                        <input type="number" id="houseage" placeholder="Range: 1 to 52" min="1" max="52" step="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="averooms">Avg. Rooms</label>
+                        <input type="number" id="averooms" placeholder="Range: 1 to 10" min="1" max="10" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="avebedrms">Avg. Bedrooms</label>
+                        <input type="number" id="avebedrms" placeholder="Range: 0.5 to 4" min="0.5" max="4" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="population">Block Population</label>
+                        <input type="number" id="population" placeholder="Range: 1 to 5000" min="1" max="5000" step="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="aveoccup">Avg. Occupancy</label>
+                        <input type="number" id="aveoccup" placeholder="Range: 1 to 10" min="1" max="10" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" id="latitude" placeholder="Range: 32 to 42" min="32" max="42" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" id="longitude" placeholder="Range: -125 to -114" min="-125" max="-114" step="0.1" required>
+                    </div>
+                </div>
+                
+                <button type="submit">Predict Price</button>
+            </form>
+            
+            <div id="regression-result" class="result-box" style="display: none;"></div>
+        </section>
+
+        <section id="classification">
+            <h2>Classification: Heart Disease</h2>
+            <p>Enter 13 patient attributes to predict the presence of heart disease.</p>
+            
+            <form id="classification-form">
+                <div class="form-group">
+                    <label for="classification-model">Select Model:</label>
+                    <select id="classification-model">
+                        <optgroup label="In-class model architectures">
+                            <option value="classification_dl_net_class.onnx" selected>[BEST MODEL] DL_Net (Acc: 88.3%)</option>
+                            <option value="classification_mlp_net_class.onnx">MLP_Net (Acc: 85.0%)</option>
+                        </optgroup>
+                         <optgroup label="My own model arctitectures">
+                            <option value="classification_simple.onnx">Simple NN (Baseline, Acc: 83.3%)</option>
+                            <option value="classification_xgboost.onnx">XGBoost (Benchmark, Acc: 83.3%)</option>
+                            <option value="classification_deep.onnx">Deep NN (Acc: 80.0%)</option>
+                            <option value="classification_optimized.onnx">Optimized NN (Acc: 81.7%)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" placeholder="Range: 20 to 90" min="20" max="90" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="trestbps">Resting BP (trestbps)</label>
+                        <input type="number" id="trestbps" placeholder="Range: 80 to 200" min="80" max="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="chol">Cholesterol (chol)</label>
+                        <input type="number" id="chol" placeholder="Range: 100 to 400" min="100" max="400" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="thalach">Max Heart Rate (thalach)</label>
+                        <input type="number" id="thalach" placeholder="Range: 70 to 220" min="70" max="220" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="oldpeak">Oldpeak (ST depression)</label>
+                        <input type="number" id="oldpeak" placeholder="Range: 0 to 7" min="0" max="7" step="0.1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sex">Sex</label>
+                        <select id="sex">
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cp">Chest Pain Type (cp)</label>
+                        <select id="cp">
+                            <option value="1">1: Typical</option>
+                            <option value="2">2: Atypical</option>
+                            <option value="3">3: Non-Anginal</option>
+                            <option value="4">4: Asymptomatic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fbs">Fasting Blood Sugar > 120 (fbs)</label>
+                        <select id="fbs">
+                            <option value="0">False</option>
+                            <option value="1">True</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="restecg">Resting ECG (restecg)</label>
+                        <select id="restecg">
+                            <option value="0">0: Normal</option>
+                            <option value="1">1: ST-T Abnormality</option>
+                            <option value="2">2: LV Hypertrophy</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exang">Exercise Induced Angina (exang)</label>
+                        <select id="exang">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="slope">Slope of ST segment</label>
+                        <select id="slope">
+                            <option value="1">1: Upsloping</option>
+                            <option value="2">2: Flat</option>
+                            <option value="3">3: Downsloping</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ca"># Major Vessels (ca)</label>
+                        <select id="ca">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="thal">Thal</label>
+                        <select id="thal">
+                            <option value="3">3: Normal</option>
+                            <option value="6">6: Fixed Defect</option>
+                            <option value="7">7: Reversible Defect</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit">Predict Diagnosis</button>
+            </form>
+            
+            <div id="classification-result" class="result-box" style="display: none;"></div>
+
+            <blockquote>
+                <strong>Note:</strong> These models were trained on specific datasets (California Housing and Heart Disease UCI). The input fields are constrained to prevent out-of-distribution predictions, which can cause unreliable results.
+            </blockquote>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built with PyTorch, XGBoost and ONNX.js (Nandhu S Kumar)</p>
+    </footer>
+
+    <script src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+/* --- Global Styles & Dark Theme --- */
+:root {
+    --bg-main: #1a1a1a;
+    --bg-card: #2a2a2a;
+    /* Semi-transparent card, slightly less opaque */
+    --bg-card-transparent: rgba(42, 42, 42, 0.65); 
+    --bg-input: #333;
+    --text-primary: #e0e0e0;
+    --text-header: #ffffff;
+    --border-color: #444;
+    /* Glass edge color */
+    --glass-border: rgba(255, 255, 255, 0.1); 
+    
+    --accent-blue: #007bff;
+    --accent-blue-hover: #0056b3;
+    
+    --result-success-bg: rgba(40, 167, 69, 0.1);
+    --result-success-border: #28a745;
+    --result-fail-bg: rgba(220, 53, 69, 0.1);
+    --result-fail-border: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* This new class holds our fixed gradient */
+.background-gradient {
+    background-color: var(--bg-main); /* Fallback */
+    background-image: radial-gradient(circle at top center, var(--bg-card) 0%, var(--bg-main) 70%);
+    background-attachment: fixed; /* We can keep this here now */
+
+    position: fixed;
+    z-index: -1; /* Puts it behind all other content */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    /* The body itself is now just a plain color */
+    background-color: var(--bg-main); 
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* --- Layout (Header, Main, Footer) --- */
+header, footer {
+    text-align: center;
+    padding: 20px;
+    
+    /* --- UPDATED --- */
+    /* Solid background to frame the page */
+    background-color: var(--bg-card); 
+    /* Add a subtle "glass" border to match the theme */
+    border-bottom: 1px solid var(--glass-border);
+}
+
+footer {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #888;
+    
+    /* --- UPDATED --- */
+    border-bottom: none; /* Remove the bottom border */
+    border-top: 1px solid var(--glass-border); /* Add a top border */
+}
+
+main {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* --- UPDATED "FROSTED GLASS" CARD --- */
+section {
+    background-color: var(--bg-card-transparent); /* Semi-transparent */
+    backdrop-filter: blur(12px); /* The "frost" effect */
+    -webkit-backdrop-filter: blur(12px); /* Safari support */
+    
+    border-radius: 12px; /* Slightly more rounded */
+    padding: 25px;
+    margin-bottom: 25px;
+    /* This creates the "glass edge" effect */
+    border: 1px solid var(--glass-border); 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    
+    /* Subtle hover "lift" effect */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: translateZ(0);
+}
+
+section:hover {
+    transform: translateY(-5px) translateZ(0);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+section h2 {
+    color: var(--text-header);
+    border-bottom: 2px solid var(--accent-blue);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* --- Form Elements --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+/* --- *** NEW STYLE FOR DROPDOWN GROUPS *** --- */
+optgroup {
+    background-color: var(--bg-card);
+    color: var(--text-header);
+    font-style: italic;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 5px 0;
+}
+
+/* Fix for dark mode dropdowns */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%...');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 10px;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-blue);
+    color: var(--text-header);
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--accent-blue-hover);
+    transform: translateY(-2px) translateZ(0);
+}
+
+/* --- Input Grid --- */
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* --- Result Box --- */
+.result-box {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Dynamic result styles (JS will add these classes) */
+.result-regression {
+    background-color: var(--result-success-bg);
+    border: 1px solid var(--result-success-border);
+    color: var(--result-success-border);
+}
+.result-positive {
+    background-color: var(--result-fail-bg);
+    border: 1px solid var(--result-fail-border);
+    color: var(--result-fail-border);
+}
+.result-negative {
+    background-color: var(--result-success-bg);
+    border: 1px solid var(--result-success-border);
+    color: var(--result-success-border);
+}
+
+/* --- Notice Box Style --- */
+blockquote {
+    background-color: var(--bg-input);
+    border-left: 5px solid var(--accent-blue);
+    padding: 15px;
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #ccc;
+    border-radius: 0 5px 5px 0;
+}
+
+/* --- Style for new Confidence text --- */
+.result-box small {
+    font-size: 0.8em;
+    font-weight: normal;
+    color: var(--text-primary);
+    opacity: 0.8;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+    body {
+        font-size: 16px;
+    }
+    
+    main {
+        padding: 0 10px;
+    }
+
+    section {
+        padding: 15px;
+    }
+    
+    /* Stack the grid on mobile */
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
+}
