@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper function to load a model
     async function loadModel(modelPath) {
         try {
-            // NOTE: You are loading from a full URL. To run locally, you
-            // MUST change this to just `return await ort.InferenceSession.create(modelPath);`
-            // and run a local server.
+            // NOTE: This MUST load from your GitHub pages URL.
+            // To run locally, change this to:
+            // const baseUrl = ""; 
             const baseUrl = "https://nsk246.github.io/ml-classification-regression-app/";
             return await ort.InferenceSession.create(baseUrl + modelPath);
         } catch (e) {
@@ -104,9 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const results = await session.run(feeds);
         
-        // This handles all our models (PyTorch = 'prediction', XGBoost = 'output_label')
-        const predictionData = results.prediction || results.output_label;
+        // --- *** THIS IS THE FIX *** ---
+        // PyTorch models use 'prediction'
+        // skl2onnx/XGBoost models can use 'variable' or 'output_label'
+        const predictionData = results.prediction || results.output_label || results.variable;
         const prediction = predictionData.data[0]; 
+        // --- *** END OF FIX *** ---
         
         const formattedPrice = (prediction * 100000).toLocaleString('en-US', {
             style: 'currency',
@@ -144,11 +147,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (results.logits) {
             logits = results.logits.data; // Get logits from PyTorch models
         } else {
-            // Reconstruct logits from XGBoost probabilities to keep the softmax logic consistent
-            // Note: XGBoost output_probability is often [prob_0, prob_1]
+            // Reconstruct logits from XGBoost probabilities
             const prob_class_0 = results.output_probability.data[0];
             const prob_class_1 = results.output_probability.data[1];
-            // We can use log to get pseudo-logits, which softmax will convert back
             logits = [Math.log(prob_class_0 + 1e-9), Math.log(prob_class_1 + 1e-9)]; // Added 1e-9 to prevent log(0)
         }
         
@@ -211,4 +212,3 @@ document.addEventListener('DOMContentLoaded', () => {
         return exps.map(e => (e / sum));
     }
 });
-//ddd
