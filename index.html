@@ -12,7 +12,7 @@
     <div class="background-gradient"></div>
     <header>
         <h1>PyTorch & XGBoost Model Deployment (ONNX)</h1>
-        <p>Comparing 14 different models for regression & classification.</p>
+        <p>Comparing 13 different models for regression & classification.</p>
     </header>
 
     <main>
@@ -22,19 +22,19 @@
             
             <form id="regression-form">
                 <div class="form-group">
-                    <label for="regression-model">Select Model:</label>
+                    <label for="regression-model">Select Model (Best to Worst):</label>
                     <select id="regression-model">
-                        <optgroup label="In-class model architectures">
-                            <option value="regression_dl_net_reg.onnx" selected>DL_Net (R2: 0.709)</option>
-                            <option value="regression_linearplusnonlinear_net.onnx">Linear+NonLinear (R2: 0.622)</option>
-                            <option value="regression_linregnet.onnx">LinRegNet (R2: 0.575)</option>
-                            <option value="regression_mlp_net_reg.onnx">MLP_Net (R2: 0.298) [WARNING: Low R2]</option>
-                        </optgroup>
                         <optgroup label="My own model architectures">
-                            <option value="regression_xgboost.onnx">XGBoost (R2: 0.827)</option>
-                            <option value="regression_optimized.onnx">Optimized NN (R2: 0.762)</option>
-                            <option value="regression_deep.onnx">Deep NN (R2: 0.755)</option>
-                            <option value="regression_simple.onnx">Simple NN (R2: 0.574)</option>
+                            <option value="regression_xgboost.onnx" selected>[BEST MODEL] XGBoost (R2: 0.827)</option>
+                            <option value="regression_deep.onnx">Deep NN (R2: 0.787)</option>
+                            <option value="regression_optimized.onnx">Optimized NN (R2: 0.753)</option>
+                            <option value="regression_simple.onnx">Simple NN (R2: 0.572)</option>
+                        </optgroup>
+                        <optgroup label="In-class model architectures">
+                            <option value="regression_dl_net_reg.onnx">DL_Net (R2: 0.665)</option>
+                            <option value="regression_linregnet.onnx">LinRegNet (R2: 0.576)</option>
+                            <option value="regression_linearplusnonlinear_net.onnx">Linear+NonLinear (R2: 0.483)</option>
+                            <option value="regression_mlp_net_reg.onnx">MLP_Net (R2: 0.002) [WARNING: Very Low R2]</option>
                         </optgroup>
                     </select>
                 </div>
@@ -86,16 +86,16 @@
             
             <form id="classification-form">
                 <div class="form-group">
-                    <label for="classification-model">Select Model:</label>
+                    <label for="classification-model">Select Model (Best to Worst):</label>
                     <select id="classification-model">
-                        <optgroup label="In-class model architectures">
-                            <option value="classification_dl_net_class.onnx" selected>[BEST MODEL] DL_Net (Acc: 88.3%)</option>
-                            <option value="classification_mlp_net_class.onnx">MLP_Net (Acc: 85.0%)</option>
-                        </optgroup>
-                         <optgroup label="My own model arctitectures">
-                            <option value="classification_simple.onnx">Simple NN (Baseline, Acc: 83.3%)</option>
-                            <option value="classification_deep.onnx">Deep NN (Acc: 80.0%)</option>
+                        <optgroup label="My own model arctitectures">
+                            <option value="classification_deep.onnx" selected>[BEST MODEL] Deep NN (Acc: 90.0%)</option>
+                            <option value="classification_simple.onnx">Simple NN (Acc: 86.7%)</option>
                             <option value="classification_optimized.onnx">Optimized NN (Acc: 81.7%)</option>
+                        </optgroup>
+                        <optgroup label="In-class model architectures">
+                             <option value="classification_dl_net_class.onnx">DL_Net (Acc: 88.3%)</option>
+                            <option value="classification_mlp_net_class.onnx">MLP_Net (Acc: 86.7%)</option>
                         </optgroup>
                     </select>
                 </div>
@@ -190,7 +190,7 @@
                 <button type="submit">Predict Diagnosis</button>
             </form>
             
-            <div id="classification-result" class="result-box" style="display: none;"></div>
+            <div id="classification-result" class="result-.box" style="display: none;"></div>
 
             <blockquote>
                 <strong>Note:</strong> These models were trained on specific datasets (California Housing and Heart Disease UCI). The input fields are constrained to prevent out-of-distribution predictions, which can cause unreliable results.
