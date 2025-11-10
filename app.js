@@ -74,11 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadModel('classification_mlp_net_class.onnx').then(m => models['classification_mlp_net_class.onnx'] = m),
         loadModel('classification_dl_net_class.onnx').then(m => models['classification_dl_net_class.onnx'] = m),
 
-        // My XGBoost Classification Model (1)
-        loadModel('classification_xgboost.onnx').then(m => models['classification_xgboost.onnx'] = m)
 
     ]).then(() => {
-        console.log("All 14 models loaded successfully.");
+        console.log("All 13 models loaded successfully.");
     });
 
     // 1. --- Handle Regression Form Submission ---
