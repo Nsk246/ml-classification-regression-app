@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadModel(modelPath) {
         try {
             // NOTE: This MUST load from your GitHub pages URL.
-            // To run locally, change this to:
+            // To run locally, you MUST change this to:
             // const baseUrl = ""; 
+            // and run a local python server
             const baseUrl = "https://nsk246.github.io/ml-classification-regression-app/";
             return await ort.InferenceSession.create(baseUrl + modelPath);
         } catch (e) {
@@ -82,95 +83,111 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. --- Handle Regression Form Submission ---
     regForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
+        e.preventDefault(); // Stop the form from reloading
         
-        const modelName = regModelSelect.value;
-        const session = models[modelName];
-        if (!session) {
-            alert("Model is not loaded yet, please wait.");
-            return;
-        }
+        // --- *** THIS IS THE FIX *** ---
+        // We wrap the *entire* prediction logic in a try...catch block
+        // This will stop the page from reloading on an error.
+        try {
+            const modelName = regModelSelect.value;
+            const session = models[modelName];
+            if (!session) {
+                alert("Model is not loaded yet, please wait.");
+                return;
+            }
 
-        const inputIds = ['medinc', 'houseage', 'averooms', 'avebedrms', 'population', 'aveoccup', 'latitude', 'longitude'];
-        const scaledData = new Float32Array(8);
-        
-        for (let i = 0; i < inputIds.length; i++) {
-            const val = parseFloat(document.getElementById(inputIds[i]).value);
-            scaledData[i] = (val - REGRESSION_MEANS[i]) / REGRESSION_STDS[i];
-        }
-        
-        const inputTensor = new ort.Tensor('float32', scaledData, [1, 8]);
-        const feeds = { 'features': inputTensor }; 
-        
-        const results = await session.run(feeds);
-        
-        // --- *** THIS IS THE DEBUG STEP *** ---
-        // 1. Log the entire 'results' object to the console
-        console.log("Regression results object:", results); 
-        
-        // 2. We'll find the real name from the log. For now, we try to find it.
-        const predictionData = results.prediction || results.output_label || results.variable;
+            // Get and scale the 8 input features
+            const inputIds = ['medinc', 'houseage', 'averooms', 'avebedrms', 'population', 'aveoccup', 'latitude', 'longitude'];
+            const scaledData = new Float32Array(8);
+            
+            for (let i = 0; i < inputIds.length; i++) {
+                const val = parseFloat(document.getElementById(inputIds[i]).value);
+                scaledData[i] = (val - REGRESSION_MEANS[i]) / REGRESSION_STDS[i];
+            }
+            
+            const inputTensor = new ort.Tensor('float32', scaledData, [1, 8]);
+            const feeds = { 'features': inputTensor }; 
+            
+            const results = await session.run(feeds);
+            
+            // This is the debug line. It will now stay in the console.
+            console.log("Regression results object:", results); 
+            
+            // This is the line that is likely failing.
+            const predictionData = results.prediction || results.output_label || results.variable;
+            const prediction = predictionData.data[0]; 
+            
+            const formattedPrice = (prediction * 100000).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            });
+            
+            regResultDiv.innerHTML = `Predicted Median Value: <strong>${formattedPrice}</strong>`;
+            regResultDiv.className = 'result-box result-regression'; 
+            regResultDiv.style.display = 'block'; 
 
-        // 3. This line will error, but the log above will tell us the fix.
-        // If the app doesn't crash, it means one of the names worked.
-        const prediction = predictionData.data[0]; 
-        // --- *** END OF DEBUG STEP *** ---
-        
-        const formattedPrice = (prediction * 100000).toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0
-        });
-        
-        regResultDiv.innerHTML = `Predicted Median Value: <strong>${formattedPrice}</strong>`;
-        regResultDiv.className = 'result-box result-regression'; 
-        regResultDiv.style.display = 'block'; 
+        } catch (err) {
+            console.error("Prediction failed!", err);
+            // Display the error on the page so we can see it
+            regResultDiv.innerHTML = `<strong>Prediction Error:</strong> ${err.message}. Check console for details.`;
+            regResultDiv.className = 'result-box result-positive'; // Make it red
+            regResultDiv.style.display = 'block'; 
+        }
+        // --- *** END OF FIX *** ---
     });
 
     // 2. --- Handle Classification Form Submission ---
     classForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const modelName = classModelSelect.value;
-        const session = models[modelName];
-        if (!session) {
-            alert("Model is not loaded yet, please wait.");
-            return;
+        try {
+            const modelName = classModelSelect.value;
+            const session = models[modelName];
+            if (!session) {
+                alert("Model is not loaded yet, please wait.");
+                return;
+            }
+            
+            const processedData = preprocessClassificationInput();
+            
+            const inputTensor = new ort.Tensor('float32', processedData, [1, 28]);
+            const feeds = { 'features': inputTensor };
+            
+            const results = await session.run(feeds);
+            
+            let logits;
+            if (results.logits) {
+                logits = results.logits.data; // Get logits from PyTorch models
+            } else {
+                // Reconstruct logits from XGBoost probabilities
+                const prob_class_0 = results.output_probability.data[0];
+                const prob_class_1 = results.output_probability.data[1];
+                logits = [Math.log(prob_class_0 + 1e-9), Math.log(prob_class_1 + 1e-9)]; 
+            }
+            
+            const probabilities = softmax(logits);
+            const prob_class_0 = probabilities[0]; // Probability of "Negative"
+            const prob_class_1 = probabilities[1]; // Probability of "Positive"
+            
+            const prediction = prob_class_1 > prob_class_0 ? 1 : 0;
+            
+            if (prediction === 1) {
+                const percentage = (prob_class_1 * 100).toFixed(1);
+                classResultDiv.innerHTML = `Prediction: <strong>Positive for Heart Disease</strong><br><small>Confidence: ${percentage}%</small>`;
+                classResultDiv.className = 'result-box result-positive';
+            } else {
+                const percentage = (prob_class_0 * 100).toFixed(1);
+                classResultDiv.innerHTML = `Prediction: <strong>Negative for Heart Disease</strong><br><small>Confidence: ${percentage}%</small>`;
+                classResultDiv.className = 'result-box result-negative';
+            }
+            classResultDiv.style.display = 'block';
+        } catch (err) {
+            console.error("Prediction failed!", err);
+            classResultDiv.innerHTML = `<strong>Prediction Error:</strong> ${err.message}. Check console for details.`;
+            classResultDiv.className = 'result-box result-positive'; // Make it red
+            classResultDiv.style.display = 'block'; 
         }
-        
-        const processedData = preprocessClassificationInput();
-        
-        const inputTensor = new ort.Tensor('float32', processedData, [1, 28]);
-        const feeds = { 'features': inputTensor };
-        
-        const results = await session.run(feeds);
-        
-        let logits;
-        if (results.logits) {
-            logits = results.logits.data; // Get logits from PyTorch models
-        } else {
-            // Reconstruct logits from XGBoost probabilities
-            const prob_class_0 = results.output_probability.data[0];
-            const prob_class_1 = results.output_probability.data[1];
-            logits = [Math.log(prob_class_0 + 1e-9), Math.log(prob_class_1 + 1e-9)]; 
-        }
-        
-        const probabilities = softmax(logits);
-        const prob_class_0 = probabilities[0]; // Probability of "Negative"
-        const prob_class_1 = probabilities[1]; // Probability of "Positive"
-        
-        const prediction = prob_class_1 > prob_class_0 ? 1 : 0;
-        
-        if (prediction === 1) {
-            const percentage = (prob_class_1 * 100).toFixed(1);
-            classResultDiv.innerHTML = `Prediction: <strong>Positive for Heart Disease</strong><br><small>Confidence: ${percentage}%</small>`;
-            classResultDiv.className = 'result-box result-positive';
-        } else {
-            const percentage = (prob_class_0 * 100).toFixed(1);
-            classResultDiv.innerHTML = `Prediction: <strong>Negative for Heart Disease</strong><br><small>Confidence: ${percentage}%</small>`;
-            classResultDiv.className = 'result-box result-negative';
-        }
-        classResultDiv.style.display = 'block';
     });
     
     /**
@@ -180,12 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const output = new Float32Array(28); 
         let outputIndex = 0;
 
+        // 1. Process 5 Numeric Features
         for (let i = 0; i < CLASSIFICATION_NUMERIC_FEATURES.length; i++) {
             const id = CLASSIFICATION_NUMERIC_FEATURES[i];
             const val = parseFloat(document.getElementById(id).value);
             output[outputIndex++] = (val - CLASSIFICATION_MEANS[i]) / CLASSIFICATION_STDS[i];
         }
         
+        // 2. Process 8 Categorical Features (One-Hot Encoding)
         for (const [id, categories] of Object.entries(CLASSIFICATION_CATEGORICAL_INFO)) {
             const selectedValue = parseFloat(document.getElementById(id).value);
             for (const category of categories) {
@@ -204,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Computes the softmax function on an array of numbers (logits).
      */
     function softmax(arr) {
+        // Add a check for non-finite numbers which can come from log(0)
         const safeArr = arr.map(x => (isFinite(x) ? x : -Infinity));
         const maxLogit = Math.max(...safeArr);
         const exps = safeArr.map(x => Math.exp(x - maxLogit)); 
@@ -211,21 +231,3 @@ document.addEventListener('DOMContentLoaded', () => {
         return exps.map(e => (e / sum));
     }
 });
-```
-
----
-
-### **Step 2: Find the Output Name**
-
-1.  **Upload** this new `app.js` file to your GitHub repo.
-2.  Wait 1-2 minutes for the site to update.
-3.  **Hard-refresh** your live website (Cmd+Shift+R or Ctrl+Shift+R).
-4.  Open the **Developer Console** (F12).
-5.  Select the **`Model 4: XGBoost`** model in the regression form.
-6.  Fill in the 8 input fields and click **"Predict Price"**.
-7.  The app will still error, but in the console, you will see a new line that starts with `Regression results object:`.
-8.  It will look something like this:
-    ```
-    Regression results object: {
-        some_other_name: Tensor { ... } 
-    }
