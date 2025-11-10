@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     regForm.addEventListener('submit', async (e) => {
         e.preventDefault(); // Stop the form from reloading
         
-        // --- *** THIS IS THE FIX *** ---
+        // --- *** THIS IS THE DEBUGGING FIX *** ---
         // We wrap the *entire* prediction logic in a try...catch block
         // This will stop the page from reloading on an error.
         try {
