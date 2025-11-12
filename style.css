@@ -1,224 +1,220 @@
 /* --- Global Styles & Dark Theme --- */
 :root {
-    --bg-main: #1a1a1a;
-    --bg-card: #2a2a2a;
-    --bg-card-transparent: rgba(42, 42, 42, 0.85); /* Kept from Option 1 */
-    --bg-input: #333;
-    --text-primary: #e0e0e0;
-    --text-header: #ffffff;
-    --border-color: #444;
-    --glass-border: rgba(255, 255, 255, 0.1); 
-    --accent-blue: #007bff;
-    --accent-blue-hover: #0056b3;
-    --result-success-bg: rgba(40, 167, 69, 0.1);
-    --result-success-border: #28a745;
-    --result-fail-bg: rgba(220, 53, 69, 0.1);
-    --result-fail-border: #dc3545;
+    --bg-main: #1a1a1a;
+    --bg-card: #2a2a2a;
+    --bg-card-transparent: rgba(42, 42, 42, 0.85);
+    --bg-input: #333;
+    --text-primary: #e0e0e0;
+    --text-header: #ffffff;
+    --border-color: #444;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-blue: #007bff;
+    --accent-blue-hover: #0056b3;
+    --result-success-bg: rgba(40, 167, 69, 0.1);
+    --result-success-border: #28a745;
+    --result-fail-bg: rgba(220, 53, 69, 0.1);
+    --result-fail-border: #dc3545;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* --- OPTIMIZATION 1: DISABLE THE FIXED ELEMENT --- */
+/* Disable fixed gradient for performance */
 .background-gradient {
-    display: none;
+    display: none;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--text-primary);
-    line-height: 1.6;
-    min-height: 100vh;
-    
-    /* --- OPTIMIZATION 1: APPLY BACKGROUND HERE --- */
-    background-color: var(--bg-main); /* Fallback */
-    background-image: radial-gradient(circle at top center, var(--bg-card) 0%, var(--bg-main) 70%);
-    background-repeat: no-repeat; /* Stops gradient from repeating */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-color: var(--bg-main);
+    background-image: radial-gradient(circle at top center, var(--bg-card) 0%, var(--bg-main) 70%);
+    background-repeat: no-repeat;
 }
 
 /* --- Layout (Header, Main, Footer) --- */
 header, footer {
-    text-align: center;
-    padding: 20px;
-    background-color: var(--bg-card); /* Now solid */
-    border-bottom: 1px solid var(--glass-border);
+    text-align: center;
+    padding: 20px;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--glass-border);
 }
 
 footer {
-    margin-top: 20px;
-    font-size: 0.9em;
-    color: #888;
-    background-color: var(--bg-card); /* Now solid */
-    border-bottom: none; 
-    border-top: 1px solid var(--glass-border); 
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #888;
+    border-bottom: none;
+    border-top: 1px solid var(--glass-border);
 }
 
 main {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 0 15px;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
 }
 
-/* --- "FROSTED GLASS" CARD --- */
+/* --- Frosted Glass Card --- */
 section {
-    background-color: var(--bg-card-transparent);
-    /* backdrop-filter is removed */
-    
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    border: 1px solid var(--glass-border); 
-    
-    /* --- OPTIMIZATION 2: SIMPLIFY THE SHADOW --- */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    
-    /* Re-adding shadow animation, as it's safe now */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; 
-    transform: translateZ(0);
-    will-change: transform;
+    background-color: var(--bg-card-transparent);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 section:hover {
-    transform: translateY(-5px) translateZ(0);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: translateY(-5px) translateZ(0);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 section h2 {
-    color: var(--text-header);
-    border-bottom: 2px solid var(--accent-blue);
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    color: var(--text-header);
+    border-bottom: 2px solid var(--accent-blue);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 /* --- Form Elements --- */
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 0.9em;
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.9em;
 }
 
 input[type="number"],
 select {
-    width: 100%;
-    padding: 10px;
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1em;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
 }
 
+/* --- Dropdown Group Styles --- */
 optgroup {
-    background-color: var(--bg-card);
-    color: var(--text-header);
-    font-style: italic;
-    font-weight: bold;
-    font-size: 0.9em;
-    padding: 5px 0;
+    background-color: var(--bg-card);
+    color: var(--text-header);
+    font-style: italic;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 5px 0;
 }
 
+/* Dark Mode Dropdown */
 select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%..._');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 10px 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.4c0%205%201.8%209.3%205.4%2012.9l128%20128c3.6%203.6%207.9%205.4%2012.9%205.4s9.3-1.8%2012.9-5.4l128-128a17.6%2017.6%200%200%200%205.4-12.9c0-5-1.8-9.3-5.4-12.9z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 10px 10px;
 }
 
+/* --- Buttons --- */
 button[type="submit"] {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--accent-blue);
-    color: var(--text-header);
-    font-size: 1.1em;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-blue);
+    color: var(--text-header);
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 10px;
 }
 
 button[type="submit"]:hover {
-    background-color: var(--accent-blue-hover);
-    transform: translateY(-2px) translateZ(0);
+    background-color: var(--accent-blue-hover);
+    transform: translateY(-2px);
 }
 
 /* --- Input Grid --- */
 .input-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
 }
 
 /* --- Result Box --- */
 .result-box {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 5px;
-    font-size: 1.1em;
-    font-weight: bold;
-    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
 }
 
+/* Dynamic Result Styles */
 .result-regression {
-    background-color: var(--result-success-bg);
-    border: 1px solid var(--result-success-border);
-    color: var(--result-success-border);
+    background-color: var(--result-success-bg);
+    border: 1px solid var(--result-success-border);
+    color: var(--result-success-border);
 }
 
 .result-positive {
-    background-color: var(--result-fail-bg);
-    border: 1px solid var(--result-fail-border);
-    color: var(--result-fail-border);
+    background-color: var(--result-fail-bg);
+    border: 1px solid var(--result-fail-border);
+    color: var(--result-fail-border);
 }
 
 .result-negative {
-    background-color: var(--result-success-bg);
-    border: 1px solid var(--result-success-border);
-    color: var(--result-success-border);
+    background-color: var(--result-success-bg);
+    border: 1px solid var(--result-success-border);
+    color: var(--result-success-border);
 }
 
-/* --- Notice Box Style --- */
+/* --- Notice Box --- */
 blockquote {
-    background-color: var(--bg-input);
-    border-left: 5px solid var(--accent-blue);
-    padding: 15px;
-    margin-top: 25px;
-    font-size: 0.9em;
-    color: #ccc;
-    border-radius: 0 5px 5px 0;
+    background-color: var(--bg-input);
+    border-left: 5px solid var(--accent-blue);
+    padding: 15px;
+    margin-top: 25px;
+    font-size: 0.9em;
+    color: #ccc;
+    border-radius: 0 5px 5px 0;
 }
 
+/* --- Confidence Text --- */
 .result-box small {
-    font-size: 0.8em;
-    font-weight: normal;
-  s   color: var(--text-primary);
-    opacity: 0.8;
+    font-size: 0.8em;
+    font-weight: normal;
+    color: var(--text-primary);
+    opacity: 0.8;
 }
 
 /* --- Responsive Design --- */
 @media (max-width: 600px) {
-    body {
-        font-size: 16px;
-    }
-    main {
-        padding: 0 10px;
-    }
-  Two   section {
-        padding: 15px;
-    }
-    .input-grid {
-        grid-template-columns: 1fr;
-    }
+    body {
+        font-size: 16px;
+    }
+    main {
+        padding: 0 10px;
+    }
+    section {
+        padding: 15px;
+    }
+    .input-grid {
+        grid-template-columns: 1fr;
+    }
 }
