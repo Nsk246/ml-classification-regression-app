@@ -2,8 +2,7 @@
 :root {
     --bg-main: #1a1a1a;
     --bg-card: #2a2a2a;
-    /* We can keep the transparent background, as it won't be expensive anymore */
-    --bg-card-transparent: rgba(42, 42, 42, 0.85); /* (Kept from Option 1) */
+    --bg-card-transparent: rgba(42, 42, 42, 0.85); /* Kept from Option 1 */
     --bg-input: #333;
     --text-primary: #e0e0e0;
     --text-header: #ffffff;
@@ -24,7 +23,6 @@
 }
 
 /* --- OPTIMIZATION 1: DISABLE THE FIXED ELEMENT --- */
-/* This element is the source of the compositing lag. We'll turn it off. */
 .background-gradient {
     display: none;
 }
@@ -36,16 +34,12 @@ body {
     min-height: 100vh;
     
     /* --- OPTIMIZATION 1: APPLY BACKGROUND HERE --- */
-    /* We apply the gradient to the body. It will now scroll with */
-    /* the content, which is 1000x faster for the browser. */
     background-color: var(--bg-main); /* Fallback */
     background-image: radial-gradient(circle at top center, var(--bg-card) 0%, var(--bg-main) 70%);
     background-repeat: no-repeat; /* Stops gradient from repeating */
 }
 
 /* --- Layout (Header, Main, Footer) --- */
-/* These elements are fine, but we'll make them solid to prevent */
-/* any composite layering issues with the body gradient. */
 header, footer {
     text-align: center;
     padding: 20px;
@@ -71,8 +65,7 @@ main {
 /* --- "FROSTED GLASS" CARD --- */
 section {
     background-color: var(--bg-card-transparent);
-    /* backdrop-filter: blur(12px); */ /* (Still removed) */
-    /* -webkit-backdrop-filter: blur(12px); */ /* (Still removed) */
+    /* backdrop-filter is removed */
     
     border-radius: 12px;
     padding: 25px;
@@ -80,17 +73,16 @@ section {
     border: 1px solid var(--glass-border); 
     
     /* --- OPTIMIZATION 2: SIMPLIFY THE SHADOW --- */
-    /* A tighter, less-fuzzy shadow is much faster to render. */
-  s   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Can re-add shadow anim */
+    /* Re-adding shadow animation, as it's safe now */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
     transform: translateZ(0);
-    will-change: transform; /* (Good to keep) */
+    will-change: transform;
 }
 
 section:hover {
     transform: translateY(-5px) translateZ(0);
-    /* A slightly larger shadow on hover is fine */
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
@@ -101,16 +93,18 @@ section h2 {
     margin-bottom: 15px;
 }
 
-/* --- Form Elements (No changes) --- */
+/* --- Form Elements --- */
 .form-group {
     margin-bottom: 15px;
 }
+
 label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
     font-size: 0.9em;
 }
+
 input[type="number"],
 select {
     width: 100%;
@@ -121,6 +115,7 @@ select {
     border-radius: 5px;
     font-size: 1em;
 }
+
 optgroup {
     background-color: var(--bg-card);
     color: var(--text-header);
@@ -129,6 +124,7 @@ optgroup {
     font-size: 0.9em;
     padding: 5px 0;
 }
+
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -137,12 +133,13 @@ select {
     background-position: right 10px center;
     background-size: 10px 10px;
 }
+
 button[type="submit"] {
     width: 100%;
     padding: 12px;
     background-color: var(--accent-blue);
     color: var(--text-header);
-Next     font-size: 1.1em;
+    font-size: 1.1em;
     font-weight: bold;
     border: none;
     border-radius: 5px;
@@ -150,12 +147,13 @@ Next     font-size: 1.1em;
     transition: background-color 0.3s ease;
     margin-top: 10px;
 }
+
 button[type="submit"]:hover {
     background-color: var(--accent-blue-hover);
     transform: translateY(-2px) translateZ(0);
 }
 
-/* --- Input Grid (No changes) --- */
+/* --- Input Grid --- */
 .input-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -163,49 +161,53 @@ button[type="submit"]:hover {
     margin-top: 20px;
 }
 
-/* --- Result Box (No changes) --- */
+/* --- Result Box --- */
 .result-box {
-s   margin-top: 20px;
+    margin-top: 20px;
     padding: 15px;
     border-radius: 5px;
     font-size: 1.1em;
     font-weight: bold;
     text-align: center;
 }
+
 .result-regression {
     background-color: var(--result-success-bg);
     border: 1px solid var(--result-success-border);
-s   color: var(--result-success-border);
+    color: var(--result-success-border);
 }
+
 .result-positive {
     background-color: var(--result-fail-bg);
     border: 1px solid var(--result-fail-border);
     color: var(--result-fail-border);
 }
+
 .result-negative {
     background-color: var(--result-success-bg);
     border: 1px solid var(--result-success-border);
     color: var(--result-success-border);
 }
 
-/* --- Notice Box Style (No changes) --- */
+/* --- Notice Box Style --- */
 blockquote {
-Two     background-color: var(--bg-input);
+    background-color: var(--bg-input);
     border-left: 5px solid var(--accent-blue);
     padding: 15px;
     margin-top: 25px;
     font-size: 0.9em;
     color: #ccc;
-  E0     border-radius: 0 5px 5px 0;
+    border-radius: 0 5px 5px 0;
 }
+
 .result-box small {
     font-size: 0.8em;
     font-weight: normal;
-    color: var(--text-primary);
+  s   color: var(--text-primary);
     opacity: 0.8;
 }
 
-/* --- Responsive Design (No changes) --- */
+/* --- Responsive Design --- */
 @media (max-width: 600px) {
     body {
         font-size: 16px;
@@ -213,7 +215,7 @@ Two     background-color: var(--bg-input);
     main {
         padding: 0 10px;
     }
-    section {
+  Two   section {
         padding: 15px;
     }
     .input-grid {
