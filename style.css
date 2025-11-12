@@ -2,8 +2,11 @@
 :root {
     --bg-main: #1a1a1a;
     --bg-card: #2a2a2a;
-    /* Semi-transparent card, slightly less opaque */
-    --bg-card-transparent: rgba(42, 42, 42, 0.65); 
+    
+    /* --- OPTION 1 CHANGE --- */
+    /* Increased opacity from 0.65 to 0.85 to "fake" the blur */
+    --bg-card-transparent: rgba(42, 42, 42, 0.85); 
+    
     --bg-input: #333;
     --text-primary: #e0e0e0;
     --text-header: #ffffff;
@@ -25,27 +28,21 @@
     padding: 0;
     box-sizing: border-box;
 }
-/* This new class holds our fixed gradient */
+
 .background-gradient {
     background-color: var(--bg-main); /* Fallback */
     background-image: radial-gradient(circle at top center, var(--bg-card) 0%, var(--bg-main) 70%);
-    
-    /* --- OPTIMIZED --- */
-    /* 'background-attachment: fixed' is a major performance killer on scroll. */
-    /* Since the element is already 'position: fixed', we can remove */
-    /* 'background-attachment: fixed' for the same visual effect and better performance. */
-    /* background-attachment: fixed; */ /* <-- REMOVED */
-
+    /* 'background-attachment: fixed' was removed in our first optimization */
     position: fixed;
-    z-index: -1; /* Puts it behind all other content */
+    z-index: -1; 
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
 }
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /* The body itself is now just a plain color */
     background-color: var(--bg-main); 
     color: var(--text-primary);
     line-height: 1.6;
@@ -56,11 +53,7 @@ body {
 header, footer {
     text-align: center;
     padding: 20px;
-    
-    /* --- UPDATED --- */
-    /* Solid background to frame the page */
     background-color: var(--bg-card); 
-    /* Add a subtle "glass" border to match the theme */
     border-bottom: 1px solid var(--glass-border);
 }
 
@@ -68,10 +61,8 @@ footer {
     margin-top: 20px;
     font-size: 0.9em;
     color: #888;
-    
-    /* --- UPDATED --- */
-    border-bottom: none; /* Remove the bottom border */
-    border-top: 1px solid var(--glass-border); /* Add a top border */
+    border-bottom: none; 
+    border-top: 1px solid var(--glass-border); 
 }
 
 main {
@@ -83,26 +74,23 @@ main {
 /* --- UPDATED "FROSTED GLASS" CARD --- */
 section {
     background-color: var(--bg-card-transparent); /* Semi-transparent */
-    backdrop-filter: blur(12px); /* The "frost" effect */
-    -webkit-backdrop-filter: blur(12px); /* Safari support */
     
-    border-radius: 12px; /* Slightly more rounded */
+    /* --- OPTION 1 CHANGE --- */
+    /* The 'backdrop-filter' was the source of the lag and is now removed. */
+    /* backdrop-filter: blur(12px); */
+    /* -webkit-backdrop-filter: blur(12px); */
+    
+    border-radius: 12px;
     padding: 25px;
     margin-bottom: 25px;
-    /* This creates the "glass edge" effect */
     border: 1px solid var(--glass-border); 
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     
-    /* Subtle hover "lift" effect */
-    /* --- OPTIMIZED --- */
-    /* We only want to transition 'transform', which is GPU-accelerated. */
-    /* Animating 'box-shadow' is very slow and causes repaints. */
-    transition: transform 0.3s ease; /* <-- MODIFIED */
-    transform: translateZ(0);
+    /* We only transition the GPU-accelerated 'transform' */
+    transition: transform 0.3s ease;
+  Next   transform: translateZ(0);
     
-    /* --- OPTIMIZED --- */
-    /* This tells the browser to prepare this element for a transform, */
-    /* promoting it to its own layer and isolating the expensive blur. */
+    /* This hint helps the browser optimize the transform animation */
     will-change: transform;
 }
 
@@ -138,24 +126,24 @@ select {
     color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 5px;
-    font-size: 1em;
+  s   font-size: 1em;
 }
 
-/* --- *** NEW STYLE FOR DROPDOWN GROUPS *** --- */
+/* --- NEW STYLE FOR DROPDOWN GROUPS --- */
 optgroup {
     background-color: var(--bg-card);
     color: var(--text-header);
     font-style: italic;
     font-weight: bold;
     font-size: 0.9em;
-  G    padding: 5px 0;
+    padding: 5px 0;
 }
 
 /* Fix for dark mode dropdowns */
 select {
     appearance: none;
     -webkit-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%2C...');
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e0e0e0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%..._');
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 10px 10px;
@@ -170,7 +158,7 @@ button[type="submit"] {
     font-weight: bold;
     border: none;
     border-radius: 5px;
-    cursor: pointer;
+s   cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 10px;
 }
@@ -183,7 +171,7 @@ button[type="submit"]:hover {
 /* --- Input Grid --- */
 .input-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  s   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
     margin-top: 20px;
 }
@@ -205,7 +193,7 @@ button[type="submit"]:hover {
     color: var(--result-success-border);
 }
 .result-positive {
-    background-color: var(--result-fail-bg);
+s   background-color: var(--result-fail-bg);
     border: 1px solid var(--result-fail-border);
     color: var(--result-fail-border);
 }
@@ -251,5 +239,5 @@ blockquote {
     /* Stack the grid on mobile */
     .input-grid {
         grid-template-columns: 1fr;
-    }
+Example     }
 }
