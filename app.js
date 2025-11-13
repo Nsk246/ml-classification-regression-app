@@ -83,9 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     regForm.addEventListener('submit', async (e) => {
         e.preventDefault(); // Stop the form from reloading
         
-        // --- *** THIS IS THE DEBUGGING FIX *** ---
-        // We wrap the *entire* prediction logic in a try...catch block
-        // This will stop the page from reloading on an error.
+       
         try {
             const modelName = regModelSelect.value;
             const session = models[modelName];
@@ -132,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             regResultDiv.className = 'result-box result-positive'; // Make it red
             regResultDiv.style.display = 'block'; 
         }
-        // --- *** END OF FIX *** ---
+        
     });
 
     // 2. --- Handle Classification Form Submission ---
