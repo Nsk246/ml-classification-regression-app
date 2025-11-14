@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CLASSIFICATION_MEANS = [54.61181434599156, 132.25316455696202, 248.45991561181435, 148.48101265822785, 1.0379746835443038];
     const CLASSIFICATION_STDS = [8.963660089125463, 17.999157285310883, 52.29552784803182, 23.18201366629552, 1.1343472032046225];
     
-    // One-Hot-Encoder categories in the *exact* order from the Python ColumnTransformer
+    // One-Hot-Encoder categories in the exact order from the Python ColumnTransformer
     const CLASSIFICATION_CATEGORICAL_INFO = {
         'sex': [0, 1],
         'cp': [1, 2, 3, 4],
@@ -39,10 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper function to load a model
     async function loadModel(modelPath) {
         try {
-            // NOTE: This MUST load from your GitHub pages URL.
-            // To run locally, you MUST change this to:
-            // const baseUrl = ""; 
-            // and run a local python server
+            
             const baseUrl = "https://nsk246.github.io/ml-classification-regression-app/";
             return await ort.InferenceSession.create(baseUrl + modelPath);
         } catch (e) {
@@ -51,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // *** UPDATED TO PRE-LOAD ALL 14 MODELS ***
+    
     Promise.all([
         // My Regression Models (4)
         loadModel('regression_simple.onnx').then(m => models['regression_simple.onnx'] = m),
@@ -59,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadModel('regression_optimized.onnx').then(m => models['regression_optimized.onnx'] = m),
         loadModel('regression_xgboost.onnx').then(m => models['regression_xgboost.onnx'] = m), 
         
-        // Prof's Regression Models (4)
+        // In-class Regression Models (4)
         loadModel('regression_linregnet.onnx').then(m => models['regression_linregnet.onnx'] = m),
         loadModel('regression_mlp_net_reg.onnx').then(m => models['regression_mlp_net_reg.onnx'] = m),
         loadModel('regression_dl_net_reg.onnx').then(m => models['regression_dl_net_reg.onnx'] = m),
@@ -70,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadModel('classification_deep.onnx').then(m => models['classification_deep.onnx'] = m),
         loadModel('classification_optimized.onnx').then(m => models['classification_optimized.onnx'] = m),
         
-        // Prof's Classification Models (2)
+        // In-class Classification Models (2)
         loadModel('classification_mlp_net_class.onnx').then(m => models['classification_mlp_net_class.onnx'] = m),
         loadModel('classification_dl_net_class.onnx').then(m => models['classification_dl_net_class.onnx'] = m),
 
@@ -79,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("All 13 models loaded successfully.");
     });
 
-    // 1. --- Handle Regression Form Submission ---
+    //  Handle Regression Form Submission 
     regForm.addEventListener('submit', async (e) => {
         e.preventDefault(); // Stop the form from reloading
         
@@ -106,10 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const results = await session.run(feeds);
             
-            // This is the debug line. It will now stay in the console.
+            
             console.log("Regression results object:", results); 
             
-            // This is the line that is likely failing.
+          
             const predictionData = results.prediction || results.output_label || results.variable;
             const prediction = predictionData.data[0]; 
             
@@ -125,15 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             console.error("Prediction failed!", err);
-            // Display the error on the page so we can see it
+      
             regResultDiv.innerHTML = `<strong>Prediction Error:</strong> ${err.message}. Check console for details.`;
-            regResultDiv.className = 'result-box result-positive'; // Make it red
+            regResultDiv.className = 'result-box result-positive'; 
             regResultDiv.style.display = 'block'; 
         }
         
     });
 
-    // 2. --- Handle Classification Form Submission ---
+    //  Handle Classification Form Submission 
     classForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -193,14 +190,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const output = new Float32Array(28); 
         let outputIndex = 0;
 
-        // 1. Process 5 Numeric Features
+        // Process 5 Numeric Features
         for (let i = 0; i < CLASSIFICATION_NUMERIC_FEATURES.length; i++) {
             const id = CLASSIFICATION_NUMERIC_FEATURES[i];
             const val = parseFloat(document.getElementById(id).value);
             output[outputIndex++] = (val - CLASSIFICATION_MEANS[i]) / CLASSIFICATION_STDS[i];
         }
         
-        // 2. Process 8 Categorical Features (One-Hot Encoding)
+        // Process 8 Categorical Features (One-Hot Encoding)
         for (const [id, categories] of Object.entries(CLASSIFICATION_CATEGORICAL_INFO)) {
             const selectedValue = parseFloat(document.getElementById(id).value);
             for (const category of categories) {
